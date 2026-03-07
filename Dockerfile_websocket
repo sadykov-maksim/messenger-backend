@@ -1,0 +1,37 @@
+# Этап, на котором выполняются подготовительные действия
+FROM python:3.12.2 as builder
+LABEL authors="Builder"
+
+WORKDIR /installer
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends gcc
+
+RUN python -m venv /opt/venv
+
+ENV PATH="/opt/venv/bin:$PATH"
+
+COPY service/requirements.txt requirements.txt
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Финальный этап
+FROM python:3.12.2
+LABEL authors="Developer"
+
+COPY --from=builder /opt/venv /opt/venv
+COPY compatibility ./opt/
+COPY postgresql ./postgresql/
+
+WORKDIR /websocket
+
+ENV PATH="/opt/venv/bin:$PATH"
+ENV PGSERVICEFILE /postgresql/.pg_service.conf
+ENV PGPASSFILE /postgresql/.pgpass
+
+COPY service .
+
+EXPOSE 4154
