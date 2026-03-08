@@ -17,4 +17,4 @@ if [ -n "$DJANGO_SUPERUSER_USERNAME" ]; then
   python manage.py createsuperuser --noinput --username "$DJANGO_SUPERUSER_USERNAME" || true
 fi
 
-exec gunicorn --certfile=/etc/certificates/avocado-messenger.pem --keyfile=/etc/certificates/avocado-messenger.key --bind 0.0.0.0:443 --timeout 3000 backend.wsgi:application
+exec gunicorn --certfile=/etc/certificates/live/avocado-messenger.host/fullchain.pem --keyfile=/etc/certificates/live/avocado-messenger.host/privkey.pem --bind 0.0.0.0:443 --timeout 3000 backend.wsgi:application

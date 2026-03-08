@@ -126,6 +126,7 @@ THIRD_PARTY_APPS = [
     'django_hosts',
     'django_filters',
     'encrypted_model_fields',
+    'django_prometheus',
 ]
 
 REST_API_APPS = [
@@ -159,6 +160,7 @@ INSTALLED_APPS += REST_API_APPS
 INSTALLED_APPS += THIRD_PARTY_APPS
 
 MIDDLEWARE = [
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',  # первым
     'django_hosts.middleware.HostsRequestMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -169,6 +171,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_hosts.middleware.HostsResponseMiddleware',
+    'django_prometheus.middleware.PrometheusAfterMiddleware',  # последним
 ]
 
 ROOT_URLCONF = 'backend.urls'
