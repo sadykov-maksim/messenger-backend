@@ -1,4 +1,4 @@
-name: workload
+name: messenger-backend
 
 # 1. Шаблон сборки: единый контекст для всех Python-сервисов.
 x-build: &python-build
@@ -252,6 +252,7 @@ services:
     volumes:
       - ./nginx/conf.d/:/etc/nginx/conf.d/:ro
       - ./certificates:/etc/certificates:ro
+      - certbot_webroot:/var/www/certbot:ro
       - static_volume:/var/www/html/static:ro
       - media_volume:/var/www/html/media:ro
     ports:
@@ -268,6 +269,18 @@ services:
       start_period: 10s
     networks:
       - service
+  certbot:
+    container_name: certbot
+    image: certbot/dns-cloudflare:latest
+    volumes:
+      - ./certificates:/etc/letsencrypt
+      - certbot_webroot:/var/www/certbot
+    entrypoint: sh -c "trap exit TERM; while :; do certbot renew --quiet; sleep 12h & wait $${!}; done"
+    depends_on:
+      nginx:
+        condition: service_healthy
+    networks:
+      - service
 
 volumes:
   static_volume:
@@ -275,6 +288,7 @@ volumes:
   postgres_volume:
   redis_server_volume:
   rabbitmq_volume:
+  certbot_webroot:
 
 networks:
   service:
